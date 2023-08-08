@@ -17,7 +17,6 @@ const ProductSchema = new mongoose.Schema(
     expireAt: {
       type: Date,
     },
-   
     fileId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "File",

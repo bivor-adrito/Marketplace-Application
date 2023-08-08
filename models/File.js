@@ -8,7 +8,6 @@ const FileSchema = new mongoose.Schema(
     path: {
       type: String,
     },
-   
   },
   {
     timestamps: true,

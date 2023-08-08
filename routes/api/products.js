@@ -5,6 +5,7 @@ const authenticateToken = require("../../middleware/auth");
 const Product = require("../../models/Product");
 const File = require("../../models/File");
 const multer = require("multer");
+const { default: mongoose } = require("mongoose");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -76,7 +77,57 @@ router.post(
 
 router.get("/", authenticateToken, async (req, res) => {
   try {
-    const product = await Product.find({});
+    let current = req?.query?.current ?? "1";
+    current = parseInt(current);
+    let pageSize = req?.query?.pageSize ?? "10"; //?How many data view in a page
+    pageSize = parseInt(pageSize);
+    const aggregate = [];
+    aggregate.push({
+      $match: {
+        // _id : new mongoose.Types.ObjectId('')
+        // name:'iphone 14'
+      },
+    });
+    aggregate.push({
+      $sort: {
+        createdAt: 1,
+      },
+    });
+
+    aggregate.push({
+      $skip: (current - 1) * pageSize,
+    });
+    aggregate.push({
+      $limit: pageSize * 1,
+    });
+
+    aggregate.push({
+      $lookup: {
+        from: "files",
+        localField: "fileId",
+        foreignField: "_id",
+        as: "file",
+      },
+    });
+    aggregate.push({
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "productOwner",
+      },
+    });
+    // aggregate.push({
+    // $group: {
+    //   _id: "$name",
+    //   totalPrice: {
+    //     $sum: "$price",
+    //   },
+    // },
+    // });
+
+    const product = await Product.aggregate(aggregate);
+    // const product = await Product.find({});
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: "Something is wrong" });
