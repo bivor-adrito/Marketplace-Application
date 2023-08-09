@@ -12,6 +12,7 @@ connectDB();
 //routes
 app.use("/api/users", require("./routes/api/users"));
 app.use("/api/products", require("./routes/api/products"));
+app.use("/api/orders", require("./routes/api/orders"));
 
 //?ApI to check connection
 app.get("/", (req, res) => {
